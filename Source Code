@@ -1,0 +1,242 @@
+/*
+ Made by Daniel K Li
+*/
+
+//Variables for interrupt pins
+int interruptPin = 2;
+int interruptPin2 = 3;
+
+//Variables for lights
+int green1 = 5;
+int green2 = 9;
+int yellow1  = 6;
+int yellow2 = 7;
+int red1 = 4;
+int red2 = 8;
+
+int stage = 1;
+
+// These are variables to check if a button has been pressed, and which one
+int tryer = 0;
+int up = 0;
+int right = 0; 
+
+// Runs when pin 2 is activated
+void upred(){
+    //Indicates that a button was pressed, and it was upred
+    tryer = 1;
+    right = 1;
+}
+
+//Runs when pin 3 is activated
+void rightred(){
+    //Indicates that a button was pressed, and it was rightred
+    tryer = 1;
+    up = 1;
+}
+
+// When any button is pressed, this runs
+void changeTracker(){
+  // If right button is pressed(pin 2), it called funcright function
+  if (right == 1){
+    funcright();
+  }
+  // If left button was pressed(pin 3), it calls funcup
+  else if (up == 1){
+    funcup();
+  }
+}
+
+//When the right button is pressed
+void funcright(){
+  //Checks if making a yellow light is necessary
+  if(stage == 1){
+    //Stops all lights
+    stopall();
+    //Turns on yellow
+    digitalWrite(yellow1, HIGH);
+    digitalWrite(red2, HIGH);
+    delay(800);
+  }
+  //Turns on the green for a 5 seconds
+  stopall();
+  digitalWrite(green2, HIGH);
+  digitalWrite(red1, HIGH);
+  delay(5000);
+  //Resets variable
+  tryer = 0;
+}
+
+//When the up button is pressed
+void funcup(){
+  //Checks if making a yellow light is necessary
+  if(stage == 3){
+    //Stops all
+    stopall();
+    //Turns on yellow
+    digitalWrite(yellow2, HIGH);
+    digitalWrite(red1, HIGH);
+    delay(800);
+  }
+  //Turns on green for 5 seconds
+  stopall();
+  digitalWrite(green1, HIGH);
+  digitalWrite(red2, HIGH);
+  delay(5000);
+  //Resets variable
+  tryer = 0;
+}
+
+//Stops all lights
+void stopall(){
+  digitalWrite(green1, LOW);
+  digitalWrite(green2, LOW);
+  digitalWrite(red1, LOW);
+  digitalWrite(red2, LOW);
+  digitalWrite(yellow1, LOW);
+  digitalWrite(yellow2, LOW);
+}
+
+//Function for top green light on
+void topgreen(){
+  stopall(); // Stops all
+  stage = 1; // Declares that it is in stage 1
+  for(int i = 0;i<200;i++){
+    if(tryer == 1){ // If a button is pressed
+      changeTracker(); // Goes to changetracker function
+    }
+    else if (tryer == 0 and (right == 1 or up == 1)) {
+      break; // If this function needs to be skipped
+    }
+    else{ // Runs normal things
+      digitalWrite(green1, HIGH);
+      digitalWrite(red2, HIGH);
+      delay(10);
+    }
+  }
+  //Advanced green
+  for(int i = 0;i<4;i++){
+    if(tryer == 1){ // If a button is pressed
+      changeTracker(); // Goes to changetracker function
+    }
+    else if (up == 1){ // Checks if this needs to be run
+      up = 0;
+      tryer = 0;
+      digitalWrite(red2, HIGH);
+    } // If not, it skips
+    else if (tryer == 0 and right == 1) {
+      break;
+    } // Normal lights
+    else{ // Runs normal things
+      digitalWrite(green1, LOW);
+      delay(100);
+      digitalWrite(green1, HIGH);
+      delay(100);
+    }
+  }
+}
+
+//Yellow
+void topyellow(){
+  stage = 2; // Next Stage
+  stopall();
+  for(int i = 0;i<80;i++){ // Checks if button is pressed
+    if(tryer == 1){ // If a button is pressed
+      changeTracker(); // Goes to changetracker
+    }
+    else if (tryer == 0 and (right == 1 or up == 1)) {
+      break; // if this function needs to be skipped
+    }
+    else{
+      digitalWrite(yellow1, HIGH);
+      digitalWrite(red2, HIGH);
+      delay(10);
+    }
+  }
+}
+
+//Function for leftgreen
+void leftgreen(){
+  stage = 3;// Next stage
+  stopall();
+  for(int i = 0;i<200;i++){// Checks if button is pressed
+    if(tryer == 1){// If a button is pressed
+      changeTracker(); // Goes to changetracker
+    }
+    else if (tryer == 0 and (right == 1 or up == 1)) {
+      break; // Checks if needs to be skipped
+    }
+    else{ // Runs routine things
+      digitalWrite(green2, HIGH); 
+      digitalWrite(red1, HIGH);
+      delay(10);
+    }
+  }
+  //Advanced green
+  for(int i = 0;i<4;i++){
+    if(tryer == 1){ // Checks if light is on
+      changeTracker(); 
+    }
+    else if (right == 1){ // Checks if this function is run here
+      right = 0;
+      tryer = 0;
+      digitalWrite(red1, HIGH);
+    }
+    else if (tryer == 0 and up == 1) {
+      break; // Checks if function needs to be skipped
+    }
+    else{ //Runs routine things
+      digitalWrite(green2, LOW);
+      delay(100);
+      digitalWrite(green2, HIGH);
+      delay(100);
+    }
+  }
+}
+
+
+void leftyellow(){
+  stage = 4; // Next stage
+  stopall();
+  for(int i = 0;i<80;i++)
+  {
+    if(tryer == 1){ // Checks if button is pressed
+      changeTracker();
+    }
+    else if (tryer == 0 and (right == 1 or up == 1)) { // Checks if function needs to be skipped
+      break;
+    }
+    else{ // Runs routine things
+      digitalWrite(yellow2, HIGH);
+      digitalWrite(red1, HIGH);
+      delay(10);
+    }
+  }
+}
+
+void setup() {
+  //Declare traffic light outputs
+  pinMode(yellow1, OUTPUT);
+  pinMode(yellow2, OUTPUT);
+  pinMode(green1, OUTPUT);
+  pinMode(green2, OUTPUT);
+  pinMode(red1, OUTPUT);
+  pinMode(red2, OUTPUT);
+
+  //Declare interrupt pins
+  pinMode(interruptPin, INPUT);
+  pinMode(interruptPin2, INPUT);
+
+  //Declares interrupts
+  attachInterrupt(0, upred, RISING);
+  attachInterrupt(1, rightred, RISING);
+  Serial.begin(9600);
+}
+
+void loop() {
+  //Runs each function
+  topgreen();
+  topyellow();
+  leftgreen();
+  leftyellow();
+}
